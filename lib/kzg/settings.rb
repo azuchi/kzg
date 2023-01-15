@@ -4,26 +4,26 @@ module KZG
   # 
   class Settings
 
-    attr_reader :g1s, :g2s
+    attr_reader :g1_points, :g2_points
 
     # @param [Array[BLS::PointG1]] g1s
     # @param [Array[BLS::PointG2]] g2s
-    def initialize(g1s, g2s)
-      raise KZG::Error, 'g1s and g2s must be array.' if !g1s.is_a?(Array) || !g2s.is_a?(Array)
-      raise KZG::Error, 'All elements of g1s must be BLS::PointG1.' unless g1s.all? { |g| g.is_a?(BLS::PointG1) }
-      raise KZG::Error, 'All elements of g2s must be BLS::PointG2.' unless g2s.all? { |g| g.is_a?(BLS::PointG2) }
+    def initialize(g1_points, g2_points)
+      raise KZG::Error, 'g1s and g2s must be array.' if !g1_points.is_a?(Array) || !g2_points.is_a?(Array)
+      raise KZG::Error, 'All elements of g1s must be BLS::PointG1.' unless g1_points.all? { |g| g.is_a?(BLS::PointG1) }
+      raise KZG::Error, 'All elements of g2s must be BLS::PointG2.' unless g2_points.all? { |g| g.is_a?(BLS::PointG2) }
 
-      @g1s = g1s
-      @g2s = g2s
+      @g1_points = g1_points
+      @g2_points = g2_points
     end
 
     # Generate polynomial commitment.
     # @param [Array[Integer]] Coefficients of a polynomial.
     # @return [BLS::PointG1]
     def commit_to_poly(coeffs)
-      raise KZG::Error, 'coeffs length is greater than the number of secret parameters.' if coeffs.length > g1s.length
+      raise KZG::Error, 'coeffs length is greater than the number of secret parameters.' if coeffs.length > g1_points.length
 
-      coeffs.map.with_index { |c, i| g1s[i] * BLS::Fq.new(c) }.inject(&:+)
+      coeffs.map.with_index { |c, i| g1_points[i] * BLS::Fq.new(c) }.inject(&:+)
     end
 
     # Compute KZG proof for polynomial in coefficient form at position +x+.
@@ -36,11 +36,11 @@ module KZG
       divisor[0] = BLS::Fq::ZERO - tmp
       divisor[1] = BLS::Fq::ONE
       quotient_poly = poly_long_div(coeffs, divisor)
-      quotient_poly.map.with_index { |c, i| g1s[i] * c }.inject(&:+)
+      quotient_poly.map.with_index { |c, i| g1_points[i] * c }.inject(&:+)
     end
 
     def ==(other)
-      g1s == other.g1s && g2s == other.g2s
+      g1_points == other.g1_points && g2_points == other.g2_points
     end
 
     def valid_proof?(commitment, proof, x, value)
