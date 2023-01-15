@@ -7,6 +7,8 @@ module KZG
 
   class Error < StandardError; end
 
+  autoload :Settings, 'kzg/settings'
+
   module_function
 
   # Setup elements of elliptic curve from +secret+.
@@ -14,7 +16,7 @@ module KZG
   # this Trusted Setup usually needs to be performed using an MPC or similar.
   # @param [Integer] secret random secret.
   # @param [Integer] n number of parameters.
-  # @return [Array[Array[BLS::PointG1], Array[BLS::PointG2]]]
+  # @return [KZG::Settings]
   def setup_params(secret, n)
     s1 = Array.new(n)
     s2 = Array.new(n)
@@ -26,7 +28,7 @@ module KZG
       tmp = s_pow
       s_pow = tmp * s
     end
-    [s1, s2]
+    Settings.new(s1, s2)
   end
 
 end
