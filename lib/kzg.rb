@@ -7,7 +7,9 @@ module KZG
 
   class Error < StandardError; end
 
-  autoload :Settings, 'kzg/settings'
+  autoload :Setting, 'kzg/setting'
+  autoload :Polynomial, 'kzg/polynomial'
+  autoload :Commitment, 'kzg/commitment'
 
   module_function
 
@@ -16,19 +18,19 @@ module KZG
   # this Trusted Setup usually needs to be performed using an MPC or similar.
   # @param [Integer] secret random secret.
   # @param [Integer] n number of parameters.
-  # @return [KZG::Settings]
+  # @return [KZG::Setting]
   def setup_params(secret, n)
     s1 = Array.new(n)
     s2 = Array.new(n)
-    s = BLS::Fq.new(secret)
-    s_pow = BLS::Fq::ONE
+    s = BLS::Fr.new(secret)
+    s_pow = BLS::Fr::ONE
     n.times do |i|
       s1[i] = BLS::PointG1::BASE * s_pow
       s2[i] = BLS::PointG2::BASE * s_pow
       tmp = s_pow
       s_pow = tmp * s
     end
-    Settings.new(s1, s2)
+    Setting.new(s1, s2)
   end
 
 end
