@@ -21,8 +21,21 @@ module KZG
       g1_points == other.g1_points && g2_points == other.g2_points
     end
 
-    def valid_proof?(commitment, proof, x, value)
-
+    # Check a proof for a KZG commitment for an evaluation f(x) = y
+    # @param [BLS::PointG1] commit_point
+    # @param [BLS::PointG1] proof
+    # @param [Integer|BLS::Fr] x
+    # @param [Integer|BLS::Fr] y
+    def valid_proof?(commit_point, proof, x, y)
+      x = x.is_a?(BLS::Fr) ? x : BLS::Fr.new(x)
+      y = y.is_a?(BLS::Fr) ? y : BLS::Fr.new(y)
+      xg2 = BLS::PointG2::BASE * x
+      yg = BLS::PointG1::BASE * y
+      # e([commitment - y]^(-1), [1]) * e([proof],  [s - x]) = 1
+      lhs = BLS.pairing((commit_point - yg).negate, BLS::PointG2::BASE, with_final_exp: false)
+      rhs = BLS.pairing(proof, g2_points[1] - xg2, with_final_exp: false)
+      exp = (lhs * rhs).final_exponentiate
+      exp == BLS::Fq12::ONE
     end
   end
 end
