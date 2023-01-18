@@ -7,17 +7,17 @@ module KZG
 
     # Create commitment
     # @param [KZG::Setting] setting
-    # @param [Array(Integer | BLS::Fr)] params Parameters to commit.
-    def initialize(setting, params)
-      if params.length > setting.g1_points.length
+    # @param [Array(Integer | BLS::Fr)] coeffs Coefficients of polynomial equation.
+    def initialize(setting, coeffs)
+      if coeffs.length > setting.g1_points.length
         raise KZG::Error,
               "coeffs length is greater than the number of secret parameters."
       end
       @setting = setting
-      @polynomial = KZG::Polynomial.new(params)
+      @polynomial = KZG::Polynomial.new(coeffs)
 
       @value =
-        params
+        coeffs
           .map
           .with_index do |c, i|
             setting.g1_points[i] * (c.is_a?(BLS::Fr) ? c : BLS::Fr.new(c))
