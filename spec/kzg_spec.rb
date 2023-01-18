@@ -5,8 +5,8 @@ RSpec.describe KZG do
     it do
       secret = 11
       n = 3
-      setup1 = KZG.setup_params(secret, n)
-      setup2 = KZG.setup_params(secret, n)
+      setup1 = described_class.setup_params(secret, n)
+      setup2 = described_class.setup_params(secret, n)
       expect(setup1).to eq(setup2)
       expect(setup1.g1_points.length).to eq(n)
     end

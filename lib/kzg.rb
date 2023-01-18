@@ -1,15 +1,16 @@
 # frozen_string_literal: true
 
-require 'bls'
-require_relative 'kzg/version'
+require "bls"
+require_relative "kzg/version"
 
+# KZG Commitment library.
 module KZG
+  class Error < StandardError
+  end
 
-  class Error < StandardError; end
-
-  autoload :Setting, 'kzg/setting'
-  autoload :Polynomial, 'kzg/polynomial'
-  autoload :Commitment, 'kzg/commitment'
+  autoload :Setting, "kzg/setting"
+  autoload :Polynomial, "kzg/polynomial"
+  autoload :Commitment, "kzg/commitment"
 
   module_function
 
@@ -32,5 +33,4 @@ module KZG
     end
     Setting.new(s1, s2)
   end
-
 end

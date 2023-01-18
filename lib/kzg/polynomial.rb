@@ -1,14 +1,14 @@
-module KZG
+# frozen_string_literal: true
 
+module KZG
   # Polynomial
   class Polynomial
-
     attr_reader :coeffs
 
     # Create new polynomial
     # @param [Array(Integer|BLS::Fr)]
     def initialize(coeffs)
-      @coeffs = coeffs.map{|c| c.is_a?(BLS::Fr) ? c : BLS::Fr.new(c)}
+      @coeffs = coeffs.map { |c| c.is_a?(BLS::Fr) ? c : BLS::Fr.new(c) }
     end
 
     # Evaluates a polynomial expression with the specified value +x+.
@@ -17,7 +17,7 @@ module KZG
     def eval_at(x)
       power = x.is_a?(BLS::Fr) ? x : BLS::Fr.new(x)
       sum = coeffs.first
-      coeffs[1..-1].each do |c|
+      coeffs[1..].each do |c|
         sum += c * power
         power *= power
       end
@@ -50,5 +50,4 @@ module KZG
       quotient_poly
     end
   end
-
 end

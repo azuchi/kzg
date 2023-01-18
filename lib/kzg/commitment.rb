@@ -1,17 +1,28 @@
-module KZG
-  class Commitment
+# frozen_string_literal: true
 
+module KZG
+  # KZG commitment
+  class Commitment
     attr_reader :setting, :polynomial, :value
 
     # Create commitment
     # @param [KZG::Setting] setting
     # @param [Array(Integer | BLS::Fr)] params Parameters to commit.
     def initialize(setting, params)
-      raise KZG::Error, 'coeffs length is greater than the number of secret parameters.' if params.length > setting.g1_points.length
+      if params.length > setting.g1_points.length
+        raise KZG::Error,
+              "coeffs length is greater than the number of secret parameters."
+      end
       @setting = setting
       @polynomial = KZG::Polynomial.new(params)
 
-      @value = params.map.with_index { |c, i| setting.g1_points[i] * (c.is_a?(BLS::Fr) ? c : BLS::Fr.new(c)) }.inject(&:+)
+      @value =
+        params
+          .map
+          .with_index do |c, i|
+            setting.g1_points[i] * (c.is_a?(BLS::Fr) ? c : BLS::Fr.new(c))
+          end
+          .inject(&:+)
     end
 
     # Compute KZG proof for polynomial in coefficient form at position x.
@@ -24,6 +35,5 @@ module KZG
       quotient_poly = polynomial.poly_long_div(divisor)
       Commitment.new(setting, quotient_poly).value
     end
-
   end
 end
