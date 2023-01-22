@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'matrix'
 
 module KZG
   # Polynomial
@@ -9,6 +10,36 @@ module KZG
     # @param [Array(Integer|BLS::Fr)]
     def initialize(coeffs)
       @coeffs = coeffs.map { |c| c.is_a?(BLS::Fr) ? c : BLS::Fr.new(c) }
+    end
+
+    # Create polynomial using lagrange interpolation using (x, y) list.
+    # @param [Array(Integer)] x The array of x coordinate.
+    # @param [Array(Integer)] y The array of y coordinate.
+    # @return [KZG::Polynomial]
+    def self.lagrange_interpolate(x, y)
+      n = x.length
+      x = x.map{|i| i.is_a?(BLS::Fr) ? i : BLS::Fr.new(i)}
+      y = y.map{|i| i.is_a?(BLS::Fr) ? i : BLS::Fr.new(i)}
+      coeffs = Array.new(n, BLS::Fr::ZERO)
+      n.times do |i|
+        prod = BLS::Fr::ONE
+        n.times do |j|
+          prod *= (x[i] - x[j]) unless i == j
+        end
+        prod = y[i] / prod
+        term = [prod] + Array.new(n-1, BLS::Fr::ZERO)
+        n.times do |j|
+          next if i == j
+          (n - 1).step(1, -1) do |k|
+            term[k] += term[k - 1]
+            term[k - 1] *= (x[j].negate)
+          end
+        end
+        n.times do |j|
+          coeffs[j] += term[j]
+        end
+      end
+      Polynomial.new(coeffs)
     end
 
     # Evaluates a polynomial expression with the specified value +x+.
