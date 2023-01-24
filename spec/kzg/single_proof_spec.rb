@@ -11,7 +11,7 @@ RSpec.describe KZG::Commitment do
   describe "commit to poly" do
     it do
       coeffs = [1, 2, 3, 4, 7, 7, 7, 7, 13, 13, 13, 13, 13, 13, 13, 13]
-      commitment = described_class.new(setting, coeffs)
+      commitment = described_class.from_coeffs(setting, coeffs)
       committed_point = commitment.value
       expect(committed_point.to_hex).to eq(
         "10193d91b11e9cb43cd452fbd0e64dba26307eef309fac038987a0ebe8dd0161502e2b3a449a68869d18d01b537406b51331ab4460884b516d07872612bd629af630244015c2ac68bd542d8fb80b37adef6b956ac233e0aab9cbb893f998a23b"

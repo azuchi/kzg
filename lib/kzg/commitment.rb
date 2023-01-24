@@ -8,21 +8,28 @@ module KZG
     # Create commitment
     # @param [KZG::Setting] setting
     # @param [Array(Integer | BLS::Fr)] coeffs Coefficients of polynomial equation.
-    def initialize(setting, coeffs)
+    def initialize(setting, polynomial, value)
+      @setting = setting
+      @polynomial = polynomial
+      @value = value
+    end
+
+    # Create commitment using coefficients.
+    # @param [KZG::Setting] setting
+    # @param [Array(Integer | BLS::Fr)] coeffs Coefficients of polynomial equation.
+    def self.from_coeffs(setting, coeffs)
       if coeffs.length > setting.g1_points.length
         raise KZG::Error,
               "coeffs length is greater than the number of secret parameters."
       end
-      @setting = setting
-      @polynomial = KZG::Polynomial.new(coeffs)
-
-      @value =
+      value =
         coeffs
           .map
           .with_index do |c, i|
             setting.g1_points[i] * (c.is_a?(BLS::Fr) ? c : BLS::Fr.new(c))
           end
           .inject(&:+)
+      Commitment.new(setting, KZG::Polynomial.new(coeffs), value)
     end
 
     # Compute KZG proof for polynomial in coefficient form at position x.
@@ -33,7 +40,7 @@ module KZG
       divisor[0] = BLS::Fr.new(x).negate
       divisor[1] = BLS::Fr::ONE
       quotient_poly = polynomial.poly_long_div(divisor)
-      Commitment.new(setting, quotient_poly).value
+      Commitment.from_coeffs(setting, quotient_poly).value
     end
   end
 end
