@@ -1,8 +1,8 @@
-# Kzg
+# KZG for Ruby
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/kzg`. To experiment with that code, run `bin/console` for an interactive prompt.
+A library for [KZG commitment](http://cacr.uwaterloo.ca/techreports/2010/cacr2010-10.pdf) over BLS12-381 in Ruby.
 
-TODO: Delete this and the text above, and describe your gem
+Note: This library has not been security audited and tested widely, so should not be used in production. 
 
 ## Installation
 
@@ -22,22 +22,76 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+### Setup
 
-## Development
+The first step is to generate public parameters via Trusted Setup.
+The following method specifies the secret value for development purposes,
+but essentially you need to create these parameters in a way that nobody knows the secret.
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+`KZG.setup_params` takes the secret value and the maximum degree + 1 of the polynomial to be generated as input and outputs the public parameters.
+The public parameters consist of an array of point in `BLS::PointG1` and `BLS::PointG2`.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+```ruby
+require 'kzg'
 
-## Contributing
+secret = xxx # secret number
+n = 10
+setting = KZG.setup_params(secret, n)
+```
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/kzg. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/kzg/blob/master/CODE_OF_CONDUCT.md).
+The above public parameters can support up to a polynomial of degree 9.
 
-## License
+### Commitment
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+With a public parameter, a commitment to a polynomial can be made.
 
-## Code of Conduct
+`KZG::Commitment#from_coeffs` creates the corresponding polynomial commitment from the public parameters and the coefficients of the polynomial.
 
-Everyone interacting in the Kzg project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/kzg/blob/master/CODE_OF_CONDUCT.md).
+```ruby
+coefficients = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+commitment = KZG::Commitment.from_coeffs(setting, coefficients)
+commitment.value
+```
+
+`KZG::Commitment#value` returns the committed value, i.e. the point in the `BLS::PointG1`.
+
+The committer can compute proof that the value of the polynomial (f(x)) for any value (x) is correct. 
+
+```ruby
+proof = commitment.compute_proof(35)
+```
+
+This proof is point in the `BLS::PointG1`.
+
+### Verify
+
+Verifiers can use committed value and proof to verify that the value of f(x) for the value of x is correct.
+
+```ruby
+x = 35
+y = 808951170278371
+setting.valid_proof?(commitment.value, proof, x, y)
+```
+
+### Use as vector commitment
+
+When used as a Vector commitment, the value to be committed is encoded in a polynomial expression as the evaluated value of the polynomial.
+For example, if commit to the vector [3, 2, 9], compute the polynomial pass the points (1, 3), (2, 2), (3, 9). 
+This can be computed by polynomial interpolation.
+
+`KZG::Polynomial#lagrange_interpolate` method recovers a polynomial from several points using Lagrangian interpolation.
+Then commitment is created using the restored polynomial.
+
+```ruby
+x = [1, 2, 3]
+y = [3, 2, 9]
+
+polynomial = KZG::Polynomial.lagrange_interpolate(x, y)
+
+commitment = KZG::Commitment.from_coeffs(setting, polynomial.coeffs)
+
+# compute proof
+proof = commitment.compute_proof(3)
+# verify
+setting.valid_proof?(commitment.value, proof, 3, 9)
+```
