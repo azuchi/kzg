@@ -37,19 +37,6 @@ module KZG
       Polynomial.new(coeffs)
     end
 
-    # Evaluates a polynomial expression with the specified value +x+.
-    # @param [Integer|BLS::Fr] x
-    # @return [BLS::Fr]
-    def eval_at(x)
-      power = x.is_a?(BLS::Fr) ? x : BLS::Fr.new(x)
-      sum = coeffs.first
-      coeffs[1..].each do |c|
-        sum += c * power
-        power *= power
-      end
-      sum
-    end
-
     # Long polynomial division for two polynomials in coefficient form
     # @param [Array(BLS::Fr)] divisor Array of divisor.
     # @return [Array(BLS::Fr)]

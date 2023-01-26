@@ -20,9 +20,6 @@ RSpec.describe KZG::Commitment do
       expect(proof.to_hex).to eq(
         "05a3632d390e34197ce6a037b3b2301c497eaf73e82ff59f39bf85813c49d825e2281771ad206e23a8f4fbc50174f67d06dd6a0407011a1b343d42f839d75348d659382b26de400640d2b6fc155d0edefe69a868e0c87f8ee362e8fde99552cd"
       )
-      expect(commitment.polynomial.eval_at(17).value).to eq(
-        39_537_218_396_363_405_614
-      )
       expect(
         setting.valid_proof?(
           committed_point,
