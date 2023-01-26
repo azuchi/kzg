@@ -37,6 +37,21 @@ module KZG
       Polynomial.new(coeffs)
     end
 
+    # Evaluate polynomial for given +x+ using Horner's method.
+    # @param [Integer | BLS::Fr] x
+    # @return [BLS::Fr] Evaluated value.
+    def eval_at(x)
+      x = x.is_a?(BLS::Fr) ? x : BLS::Fr.new(x)
+      return BLS::Fr::ZERO if coeffs.empty?
+      return coeffs.first if x.value.zero?
+      last = coeffs[coeffs.length - 1]
+      (coeffs.length - 2).step(0, -1) do |i|
+        tmp = last * x
+        last = tmp + coeffs[i]
+      end
+      last
+    end
+
     # Long polynomial division for two polynomials in coefficient form
     # @param [Array(BLS::Fr)] divisor Array of divisor.
     # @return [Array(BLS::Fr)]
