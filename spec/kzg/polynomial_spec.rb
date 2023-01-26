@@ -10,8 +10,11 @@ RSpec.describe KZG::Polynomial do
         x_coordinates << BLS::Fr.new(Random.rand(2**256))
         y_coordinates << BLS::Fr.new(Random.rand(2**256))
       end
-      polynomial = described_class.lagrange_interpolate(x_coordinates, y_coordinates)
-      x_coordinates.zip(y_coordinates) { |x, y| expect(polynomial.eval_at(x)).to eq(y) }
+      polynomial =
+        described_class.lagrange_interpolate(x_coordinates, y_coordinates)
+      x_coordinates.zip(y_coordinates) do |x, y|
+        expect(polynomial.eval_at(x)).to eq(y)
+      end
     end
   end
 end
