@@ -28,6 +28,20 @@ RSpec.describe KZG::Commitment do
           39_537_218_396_363_405_614
         )
       ).to be true
+
+      # Specify x = 0
+      proof = commitment.compute_proof(0)
+      expect(proof.to_hex).to eq(
+        "0e89bf7e2ab06734ec3bd4beea82453c58f11bd3ae2e42ffbb88521cc70e0fd300f936225f3b939ba1962f94cd2cd34a08c772b2c31455bb417711f21673fb9a88b723195e7d64b801639b62626919c29c586e3d8c20bedef6de48a13449e3ac"
+      )
+      expect(
+        setting.valid_proof?(
+          committed_point,
+          proof,
+          0,
+          commitment.polynomial.eval_at(0)
+        )
+      ).to be true
     end
   end
 end

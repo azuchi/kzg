@@ -56,7 +56,7 @@ module KZG
     # @param [Array(BLS::Fr)] divisor Array of divisor.
     # @return [Array(BLS::Fr)]
     def poly_long_div(divisor)
-      a = coeffs
+      a = coeffs.dup
       a_pos = a.length - 1
       b_pos = divisor.length - 1
       diff = a_pos - b_pos

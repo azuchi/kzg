@@ -26,7 +26,8 @@ module KZG
         coeffs
           .map
           .with_index do |c, i|
-            setting.g1_points[i] * (c.is_a?(BLS::Fr) ? c : BLS::Fr.new(c))
+            c = c.is_a?(BLS::Fr) ? c : BLS::Fr.new(c)
+            c.value.zero? ? BLS::PointG1::ZERO : setting.g1_points[i] * c
           end
           .inject(&:+)
       Commitment.new(setting, KZG::Polynomial.new(coeffs), value)

@@ -34,8 +34,8 @@ module KZG
     def valid_proof?(commit_point, proof, x, y)
       x = x.is_a?(BLS::Fr) ? x : BLS::Fr.new(x)
       y = y.is_a?(BLS::Fr) ? y : BLS::Fr.new(y)
-      xg2 = BLS::PointG2::BASE * x
-      yg = BLS::PointG1::BASE * y
+      xg2 = x.value.zero? ? BLS::PointG2::ZERO : BLS::PointG2::BASE * x
+      yg = y.value.zero? ? BLS::PointG1::ZERO : BLS::PointG1::BASE * y
 
       # e([commitment - y]^(-1), [1]) * e([proof],  [s - x]) = 1
       lhs =
