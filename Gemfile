@@ -13,3 +13,5 @@ gem 'prettier'
 
 gem 'rubocop-rake'
 gem 'rubocop-rspec'
+
+gem 'parallel_tests'

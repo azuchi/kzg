@@ -22,15 +22,13 @@ module KZG
   # @return [KZG::Setting]
   def setup_params(secret, n)
     s1 = Array.new(n)
-    s2 = Array.new(n)
     s = BLS::Fr.new(secret)
     s_pow = BLS::Fr::ONE
     n.times do |i|
       s1[i] = BLS::PointG1::BASE * s_pow
-      s2[i] = BLS::PointG2::BASE * s_pow
       tmp = s_pow
       s_pow = tmp * s
     end
-    Setting.new(s1, s2)
+    Setting.new(s1, BLS::PointG2::BASE * s)
   end
 end

@@ -52,4 +52,21 @@ RSpec.describe KZG::Commitment do
       ).to be false
     end
   end
+
+  describe "single point test" do
+    it do
+      max_degree_poly = BLS::Curve::R - 1
+      n = 32
+      coeffs = n.times.map { Random.rand(1..max_degree_poly) }
+      setting = KZG.setup_params(Random.rand(1..2**256), n)
+      commitment = described_class.from_coeffs(setting, coeffs)
+      Parallel.each(n.times) do |i|
+        proof = commitment.compute_proof(i)
+        value = commitment.polynomial.eval_at(i)
+        expect(
+          setting.valid_proof?(commitment.value, proof, i, value)
+        ).to be true
+      end
+    end
+  end
 end
