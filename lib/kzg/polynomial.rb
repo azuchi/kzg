@@ -52,6 +52,21 @@ module KZG
       last
     end
 
+    # Returns a new polynomial that is the sum of the given polynomial and this polynomial.
+    # @param [KZG::Polynomial] other
+    # @return [KZG::Polynomial] Sum of polynomial.
+    def add(other)
+      base, target =
+        if coeffs.length < other.coeffs.length
+          [other.coeffs, coeffs]
+        else
+          [coeffs, other.coeffs]
+        end
+      sum = base.zip(target).map { |a, b| b.nil? ? a : a + b }
+      Polynomial.new(sum)
+    end
+    alias + add
+
     # Long polynomial division for two polynomials in coefficient form
     # @param [Array(BLS::Fr)] divisor Array of divisor.
     # @return [Array(BLS::Fr)]
