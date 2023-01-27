@@ -10,7 +10,7 @@ RSpec/ExampleLength:
 Metrics:
   Enabled: false
 RSpec/MultipleExpectations:
-  Max: 5
+  Enabled: false
 Style/IfUnlessModifier:
   Enabled: false
 Style/WhileUntilModifier:

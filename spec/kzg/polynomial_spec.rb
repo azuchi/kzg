@@ -13,7 +13,9 @@ RSpec.describe KZG::Polynomial do
       polynomial =
         described_class.lagrange_interpolate(x_coordinates, y_coordinates)
       x_coordinates.zip(y_coordinates) do |x, y|
-        expect(polynomial.eval_at(x)).to eq(y)
+        evaluated = polynomial.eval_at(x)
+        expect(evaluated).to eq(y)
+        expect(evaluated).not_to eq(y + BLS::Fr::ONE)
       end
     end
   end
