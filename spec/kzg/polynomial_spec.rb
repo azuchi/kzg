@@ -49,4 +49,32 @@ RSpec.describe KZG::Polynomial do
       expect(c_commitment.value).to eq(a_commitment.value + b_commitment.value)
     end
   end
+
+  multiply_vector = [
+    { p1: [0, 0, 1], p2: [1, 0, 0], result: [0, 0, 1, 0, 0] },
+    { p1: [1, 1, 0], p2: [-1, 1, 0], result: [-1, 0, 1, 0, 0] },
+    { p1: [0, 0, 3], p2: [2, 0, 0], result: [0, 0, 6, 0, 0] },
+    { p1: [1, 2, 3], p2: [-4, 5, -6], result: [-4, -3, -8, 3, -18] }
+  ].freeze
+
+  describe "#multiply" do
+    it do
+      multiply_vector.each do |v|
+        p1 = described_class.new(v[:p1])
+        p2 = described_class.new(v[:p2])
+        expect(p1 * p2).to eq(described_class.new(v[:result]))
+      end
+    end
+  end
+
+  describe "#zero_poly" do
+    it do
+      x = [1, 2, 3]
+      coeffs = described_class.zero_poly(x).coeffs
+      expect(coeffs[0]).to eq(BLS::Fr.new(-6))
+      expect(coeffs[1]).to eq(BLS::Fr.new(11))
+      expect(coeffs[2]).to eq(BLS::Fr.new(-6))
+      expect(coeffs[3]).to eq(BLS::Fr::ONE)
+    end
+  end
 end

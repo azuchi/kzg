@@ -37,6 +37,15 @@ module KZG
       Polynomial.new(coeffs)
     end
 
+    # Create polynomial from array of x coordinate like f(x) = (x - x0)(x - x1)...(x - xn)
+    # @param [Array(Integer)] x An array of x coordinate.
+    # @return [KZG::Polynomial]
+    def self.zero_poly(x)
+      poleis =
+        x.map { |v| Polynomial.new([BLS::Fr.new(v).negate, BLS::Fr::ONE]) }
+      poleis[1..].inject(poleis.first) { |result, poly| result * poly }
+    end
+
     # Evaluate polynomial for given +x+ using Horner's method.
     # @param [Integer | BLS::Fr] x
     # @return [BLS::Fr] Evaluated value.
@@ -66,6 +75,30 @@ module KZG
       Polynomial.new(sum)
     end
     alias + add
+
+    # Return a new polynomial that multiply self and the given polynomial.
+    # @param [KZG::Polynomial] other Other polynomial
+    # @return [KZG::Polynomial] Multiplied polynomial
+    # @return ArgumentError
+    def multiply(other)
+      unless other.is_a?(Polynomial)
+        raise ArgumentError, "multiply target must be Polynomial"
+      end
+      new_coeffs = Array.new(coeffs.length + other.coeffs.length - 1)
+      coeffs.each.with_index do |a, i|
+        other.coeffs.each.with_index do |b, j|
+          k = i + j
+          new_coeffs[k] = a * b + (new_coeffs[k] || BLS::Fr::ZERO)
+        end
+      end
+      Polynomial.new(new_coeffs)
+    end
+    alias * multiply
+
+    def ==(other)
+      return false unless other.is_a?(Polynomial)
+      coeffs == other.coeffs
+    end
 
     # Long polynomial division for two polynomials in coefficient form
     # @param [Array(BLS::Fr)] divisor Array of divisor.
