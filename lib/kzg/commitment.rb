@@ -43,5 +43,25 @@ module KZG
       quotient_poly = polynomial.poly_long_div(divisor)
       Commitment.from_coeffs(setting, quotient_poly).value
     end
+
+    # Compute KZG multi proof using list of x coordinate.
+    # @param [Array(Integer)] x An array of x coordinate.
+    # @return [BLS::PointG1]
+    def compute_multi_proof(x)
+      y = x.map { |i| polynomial.eval_at(i) }
+      # compute i(x)
+      i_poly = Polynomial.lagrange_interpolate(x, y)
+      # compute z(x)
+      z_poly = Polynomial.zero_poly(x)
+      # compute q(x) = (p(x) - i(x)) / z(x)
+      quotient_poly = (polynomial - i_poly).poly_long_div(z_poly.coeffs)
+      Commitment.from_coeffs(setting, quotient_poly).value
+    end
+
+    private
+
+    # @param [Array(Integer)] x An array of x coordinate.
+    def zero_poly(x)
+    end
   end
 end
