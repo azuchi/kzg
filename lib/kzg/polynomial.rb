@@ -64,17 +64,29 @@ module KZG
     # Returns a new polynomial that is the sum of the given polynomial and this polynomial.
     # @param [KZG::Polynomial] other
     # @return [KZG::Polynomial] Sum of polynomial.
+    # @raise ArgumentError
     def add(other)
-      base, target =
-        if coeffs.length < other.coeffs.length
-          [other.coeffs, coeffs]
-        else
-          [coeffs, other.coeffs]
-        end
-      sum = base.zip(target).map { |a, b| b.nil? ? a : a + b }
+      unless other.is_a?(Polynomial)
+        raise ArgumentError, "add target must be Polynomial"
+      end
+
+      sum = process(coeffs, other.coeffs) { |a, b| a + b }
       Polynomial.new(sum)
     end
     alias + add
+
+    # Returns a new polynomial subtracting the given polynomial from self.
+    # @param [KZG::Polynomial] other
+    # @return [KZG::Polynomial] Subtracted polynomial.
+    # @raise ArgumentError
+    def sub(other)
+      unless other.is_a?(Polynomial)
+        raise ArgumentError, "subtract target must be Polynomial"
+      end
+
+      Polynomial.new(process(coeffs, other.coeffs) { |a, b| a - b })
+    end
+    alias - sub
 
     # Return a new polynomial that multiply self and the given polynomial.
     # @param [KZG::Polynomial] other Other polynomial
@@ -124,6 +136,17 @@ module KZG
         diff -= 1
       end
       quotient_poly
+    end
+
+    private
+
+    def process(a, b)
+      length = [a.length, b.length].max
+      length.times.map do |i|
+        c1 = i < a.length ? a[i] : BLS::Fr::ZERO
+        c2 = i < b.length ? b[i] : BLS::Fr::ZERO
+        yield(c1, c2)
+      end
     end
   end
 end

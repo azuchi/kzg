@@ -50,6 +50,19 @@ RSpec.describe KZG::Polynomial do
     end
   end
 
+  describe "sub" do
+    it do
+      a_poly =
+        described_class.new(10.times.map { BLS::Fr.new(Random.rand(2**256)) })
+      b_poly =
+        described_class.new(10.times.map { BLS::Fr.new(Random.rand(2**256)) })
+      c_poly = a_poly - b_poly
+      10.times do |i|
+        expect(c_poly.eval_at(i)).to eq(a_poly.eval_at(i) - b_poly.eval_at(i))
+      end
+    end
+  end
+
   multiply_vector = [
     { p1: [0, 0, 1], p2: [1, 0, 0], result: [0, 0, 1, 0, 0] },
     { p1: [1, 1, 0], p2: [-1, 1, 0], result: [-1, 0, 1, 0, 0] },
