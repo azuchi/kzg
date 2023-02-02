@@ -57,11 +57,5 @@ module KZG
       quotient_poly = (polynomial - i_poly).poly_long_div(z_poly.coeffs)
       Commitment.from_coeffs(setting, quotient_poly).value
     end
-
-    private
-
-    # @param [Array(Integer)] x An array of x coordinate.
-    def zero_poly(x)
-    end
   end
 end
