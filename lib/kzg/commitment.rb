@@ -39,7 +39,7 @@ module KZG
     def compute_proof(x)
       divisor = Polynomial.new([BLS::Fr.new(x).negate, BLS::Fr::ONE])
       quotient_poly = polynomial / divisor
-      Commitment.from_coeffs(setting, quotient_poly.coeffs).value
+      Commitment.new(setting, quotient_poly).value
     end
 
     # Compute KZG multi proof using list of x coordinate.
@@ -53,7 +53,7 @@ module KZG
       z_poly = Polynomial.zero_poly(x)
       # compute q(x) = (p(x) - i(x)) / z(x)
       quotient_poly = (polynomial - i_poly) / z_poly
-      Commitment.from_coeffs(setting, quotient_poly.coeffs).value
+      Commitment.new(setting, quotient_poly).value
     end
   end
 end
