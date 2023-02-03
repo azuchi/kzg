@@ -37,11 +37,9 @@ module KZG
     # @param [Integer] x Position
     # @return [BLS::PointG1] Proof.
     def compute_proof(x)
-      divisor = Array.new(2)
-      divisor[0] = BLS::Fr.new(x).negate
-      divisor[1] = BLS::Fr::ONE
-      quotient_poly = polynomial.poly_long_div(divisor)
-      Commitment.from_coeffs(setting, quotient_poly).value
+      divisor = Polynomial.new([BLS::Fr.new(x).negate, BLS::Fr::ONE])
+      quotient_poly = polynomial / divisor
+      Commitment.from_coeffs(setting, quotient_poly.coeffs).value
     end
 
     # Compute KZG multi proof using list of x coordinate.
@@ -54,8 +52,8 @@ module KZG
       # compute z(x)
       z_poly = Polynomial.zero_poly(x)
       # compute q(x) = (p(x) - i(x)) / z(x)
-      quotient_poly = (polynomial - i_poly).poly_long_div(z_poly.coeffs)
-      Commitment.from_coeffs(setting, quotient_poly).value
+      quotient_poly = (polynomial - i_poly) / z_poly
+      Commitment.from_coeffs(setting, quotient_poly.coeffs).value
     end
   end
 end

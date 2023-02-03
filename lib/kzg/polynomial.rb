@@ -107,26 +107,25 @@ module KZG
     end
     alias * multiply
 
-    def ==(other)
-      return false unless other.is_a?(Polynomial)
-      coeffs == other.coeffs
-    end
-
-    # Long polynomial division for two polynomials in coefficient form
-    # @param [Array(BLS::Fr)] divisor Array of divisor.
-    # @return [Array(BLS::Fr)]
-    def poly_long_div(divisor)
+    # Return a new polynomial that divide self and the given polynomial, i.e. self / other.
+    # @param [KZG::Polynomial] other Other polynomial
+    # @return [KZG::Polynomial] Divided polynomial
+    # @return ArgumentError
+    def div(other)
+      unless other.is_a?(Polynomial)
+        raise ArgumentError, "divide target must be Polynomial"
+      end
       a = coeffs.dup
       a_pos = a.length - 1
-      b_pos = divisor.length - 1
+      b_pos = other.coeffs.length - 1
       diff = a_pos - b_pos
       quotient_poly = []
 
       while diff >= 0
-        quot = a[a_pos] / divisor[b_pos]
+        quot = a[a_pos] / other.coeffs[b_pos]
         i = b_pos
         while i >= 0
-          tmp = quot * divisor[i]
+          tmp = quot * other.coeffs[i]
           tmp2 = a[diff + i] - tmp
           a[diff + i] = tmp2
           i -= 1
@@ -135,7 +134,13 @@ module KZG
         a_pos -= 1
         diff -= 1
       end
-      quotient_poly
+      Polynomial.new(quotient_poly)
+    end
+    alias / div
+
+    def ==(other)
+      return false unless other.is_a?(Polynomial)
+      coeffs == other.coeffs
     end
 
     private
