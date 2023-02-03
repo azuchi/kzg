@@ -72,7 +72,7 @@ RSpec.describe KZG::Commitment do
     end
   end
 
-  describe "multiple proof" do
+  describe "#compute_multi_proof" do
     it do
       x = [
         5431,
@@ -88,6 +88,32 @@ RSpec.describe KZG::Commitment do
       expect(multi_proof.to_hex).to eq(
         "18f651a90e8292567bfe792dbaa0c96909704288597712309188a5050f17abd90006e53a5b2bbe9d5f6b5517c723b706041ee0de2c3c4f209f6ef5fd578a6ee852028e942cb2a49f594159b2facb46b943e4276c9679315ca249eeb3804c01bd"
       )
+      y = x.map { |i| commitment.polynomial.eval_at(i) }
+      expect(
+        setting.valid_multi_proof?(commitment.value, multi_proof, x, y)
+      ).to be true
+      x[0] = 1
+      expect(
+        setting.valid_multi_proof?(commitment.value, multi_proof, x, y)
+      ).to be false
+    end
+  end
+
+  describe "#valid_multi_proof?" do
+    it do
+      max_degree_poly = BLS::Curve::R - 1
+      n = 32
+      coeffs = n.times.map { Random.rand(1..max_degree_poly) }
+      setting = KZG.setup_params(Random.rand(1..2**256), n)
+      commitment = described_class.from_coeffs(setting, coeffs)
+      Parallel.each(n.times) do |_|
+        x = 10.times.map { |_| Random.rand(2**256) }
+        multi_proof = commitment.compute_multi_proof(x)
+        y = x.map { |i| commitment.polynomial.eval_at(i) }
+        expect(
+          setting.valid_multi_proof?(commitment.value, multi_proof, x, y)
+        ).to be true
+      end
     end
   end
 end
