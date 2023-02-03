@@ -61,7 +61,19 @@ The committer can compute proof that the value of the polynomial (f(x)) for any 
 proof = commitment.compute_proof(35)
 ```
 
-This proof is point in the `BLS::PointG1`.
+This proof is a point in the `BLS::PointG1`.
+
+#### Multi proof
+
+A multi-proof for disclosing multiple x values is created as follows:
+
+```ruby
+x = [1, 2, 3]
+
+multi_proof = commitment.compute_multi_proof(x)
+```
+
+This proof is a point in the `BLS::PointG1`.
 
 ### Verify
 
@@ -71,6 +83,16 @@ Verifiers can use committed value and proof to verify that the value of f(x) for
 x = 35
 y = 808951170278371
 setting.valid_proof?(commitment.value, proof, x, y)
+```
+
+#### Multi proof
+
+The validity of multiple proofs disclosing more than one value can be verified as follows:
+
+```ruby
+x = [1, 2, 3]
+y = [55, 9217, 280483]
+setting.valid_multi_proof?(commitment.value, multi_proof, x, y)
 ```
 
 ### Use as vector commitment
