@@ -44,7 +44,7 @@ module KZG
         )
       rhs = BLS.pairing(proof, g2_points[1] - xg2, with_final_exp: false)
       exp = (lhs * rhs).final_exponentiate
-      exp == BLS::Fq12::ONE
+      exp == BLS::Fp12::ONE
     end
 
     # Check a proof for a KZG commitment for an evaluation f(x) = y
@@ -77,7 +77,7 @@ module KZG
           .inject(&:+)
       rhs = BLS.pairing(proof, z_commit, with_final_exp: false)
       exp = (lhs * rhs).final_exponentiate
-      exp == BLS::Fq12::ONE
+      exp == BLS::Fp12::ONE
     end
   end
 end
