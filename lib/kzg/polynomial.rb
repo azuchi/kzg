@@ -53,7 +53,7 @@ module KZG
       x = x.is_a?(BLS::Fr) ? x : BLS::Fr.new(x)
       return BLS::Fr::ZERO if coeffs.empty?
       return coeffs.first if x.value.zero?
-      last = coeffs[coeffs.length - 1]
+      last = coeffs.last
       (coeffs.length - 2).step(0, -1) do |i|
         tmp = last * x
         last = tmp + coeffs[i]
